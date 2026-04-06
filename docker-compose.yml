@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+
+  # ─────────────────────────────────────────
+  # API FastAPI
+  # ─────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    volumes:
+      # Monte le code local → hot reload en dev
+      - ./app:/app/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy  # Attend que Postgres soit prêt
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - app_network
+
+  # ─────────────────────────────────────────
+  # Base de données PostgreSQL
+  # ─────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: fastapi_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      # Persiste les données même si le container redémarre
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+volumes:
+  postgres_data:
+
+networks:
+  app_network:
+    driver: bridge

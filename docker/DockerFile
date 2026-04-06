@@ -1,0 +1,21 @@
+# Image Python légère et sécurisée
+FROM python:3.12-slim
+
+# Dossier de travail dans le container
+WORKDIR /app
+
+# Copier les dépendances EN PREMIER (cache Docker optimisé)
+# Si requirements.txt ne change pas → Docker réutilise le cache
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copier le reste du code
+COPY . .
+
+# Port exposé par Uvicorn
+EXPOSE 8000
+
+# Démarrer l'app avec Uvicorn
+# --reload uniquement en dev (on gère ça via docker-compose)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
