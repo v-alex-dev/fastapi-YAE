@@ -1,0 +1,140 @@
+
+<style>
+.sheet { padding: 1rem 0; }
+.section { margin-bottom: 1.5rem; }
+.section-title { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-tertiary); margin: 0 0 8px; padding: 0 0 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.cmd-row { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.cmd-row:last-child { border-bottom: none; }
+.cmd-block { flex: 1; }
+.cmd-code { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 5px 10px; display: block; margin-bottom: 3px; }
+.cmd-desc { font-size: 12px; color: var(--color-text-secondary); }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 99px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+.badge-teal  { background: #E1F5EE; color: #0F6E56; }
+.badge-amber { background: #FAEEDA; color: #854F0B; }
+.badge-red   { background: #FCEBEB; color: #A32D2D; }
+.badge-gray  { background: #F1EFE8; color: #5F5E5A; }
+.workflow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.wf-step { font-family: var(--font-mono); font-size: 12px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 5px 10px; color: var(--color-text-primary); }
+.wf-arrow { color: var(--color-text-tertiary); font-size: 12px; }
+</style>
+
+<div class="sheet">
+
+  <div class="section">
+    <p class="section-title">Workflow du quotidien</p>
+    <div class="workflow">
+      <span class="wf-step">modifier models/</span>
+      <span class="wf-arrow">→</span>
+      <span class="wf-step">revision --autogenerate</span>
+      <span class="wf-arrow">→</span>
+      <span class="wf-step">relire le fichier</span>
+      <span class="wf-arrow">→</span>
+      <span class="wf-step">upgrade head</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-title">Créer une migration</p>
+    <div class="cmd-row">
+      <span class="badge badge-teal">créer</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic revision --autogenerate -m "description"</code>
+        <span class="cmd-desc">Génère automatiquement un fichier dans versions/ en comparant les modèles à la DB</span>
+      </div>
+    </div>
+    <div class="cmd-row">
+      <span class="badge badge-gray">créer</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic revision -m "description"</code>
+        <span class="cmd-desc">Crée un fichier vide — à remplir manuellement (sans autogenerate)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-title">Appliquer des migrations</p>
+    <div class="cmd-row">
+      <span class="badge badge-teal">appliquer</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic upgrade head</code>
+        <span class="cmd-desc">Applique toutes les migrations en attente jusqu'à la dernière</span>
+      </div>
+    </div>
+    <div class="cmd-row">
+      <span class="badge badge-teal">appliquer</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic upgrade +1</code>
+        <span class="cmd-desc">Applique uniquement la prochaine migration</span>
+      </div>
+    </div>
+    <div class="cmd-row">
+      <span class="badge badge-teal">appliquer</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic upgrade a1b2c3d4</code>
+        <span class="cmd-desc">Applique jusqu'à une révision précise (ID du fichier versions/)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-title">Annuler des migrations</p>
+    <div class="cmd-row">
+      <span class="badge badge-amber">annuler</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic downgrade -1</code>
+        <span class="cmd-desc">Annule la dernière migration appliquée</span>
+      </div>
+    </div>
+    <div class="cmd-row">
+      <span class="badge badge-red">annuler</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic downgrade base</code>
+        <span class="cmd-desc">Annule toutes les migrations — remet la DB à zéro</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-title">Inspecter l'état</p>
+    <div class="cmd-row">
+      <span class="badge badge-gray">info</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic current</code>
+        <span class="cmd-desc">Affiche la version actuellement appliquée en base</span>
+      </div>
+    </div>
+    <div class="cmd-row">
+      <span class="badge badge-gray">info</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic history</code>
+        <span class="cmd-desc">Liste toutes les migrations dans l'ordre chronologique</span>
+      </div>
+    </div>
+    <div class="cmd-row">
+      <span class="badge badge-gray">info</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic history --verbose</code>
+        <span class="cmd-desc">Idem avec le détail de chaque révision</span>
+      </div>
+    </div>
+    <div class="cmd-row">
+      <span class="badge badge-gray">info</span>
+      <div class="cmd-block">
+        <code class="cmd-code">docker compose exec api alembic heads</code>
+        <span class="cmd-desc">Affiche la ou les dernières révisions disponibles</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-title">Sans Docker (venv local)</p>
+    <div class="cmd-row">
+      <span class="badge badge-gray">local</span>
+      <div class="cmd-block">
+        <code class="cmd-code">alembic upgrade head</code>
+        <span class="cmd-desc">Même commandes, sans le préfixe docker compose exec api</span>
+      </div>
+    </div>
+  </div>
+
+</div>
