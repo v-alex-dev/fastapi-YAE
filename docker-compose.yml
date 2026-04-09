@@ -13,6 +13,8 @@ services:
     volumes:
       # Monte le code local → hot reload en dev
       - ./app:/app/app
+      - ./alembic:/app/alembic        # migrations
+      - ./alembic.ini:/app/alembic.ini
     env_file:
       - .env
     depends_on:
